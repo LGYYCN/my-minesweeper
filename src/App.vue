@@ -1,11 +1,16 @@
 <template>
-  <div>
-    <IMinesweeperVue msg="扫雷 2.0"></IMinesweeperVue>
-  </div>
+  <MinesweeperWindow class="minesweep"></MinesweeperWindow>
 </template>
 
 <script setup lang="ts">
-import IMinesweeperVue from "./components/IMinesweeper.vue";
+import MinesweeperWindow from "./components/MinesweeperWindow.vue";
 </script>
 
-<style scoped></style>
+<style>
+#app {
+  height: 100vh;
+}
+.minesweep {
+  height: 100vh;
+}
+</style>

@@ -1,52 +1,67 @@
 <template>
-  <div>{{ flags }}</div>
-  <input
-    v-model="mineCount"
-    type="number"
-    :max="rowCount * colCount * 0.5"
-    min="1"
-  />
-  <input v-model="rowCount" type="number" />
-  <input v-model="colCount" type="number" />
+  <el-container>
+    <el-aside width="200px" class="border-r-2 flex justify-center items-center">
+      <el-space direction="vertical" :size="20">
+        <div>插旗数量: {{ flags }}</div>
 
-  <button @click="refresh" class="px-4 py-1 bg-green-200 rounded-md shadow-md">
-    刷新
-  </button>
+        <el-input-number
+          v-model="mineCount"
+          :max="rowCount * colCount * 0.5"
+          min="1"
+        />
+        <el-input-number v-model="rowCount" max="100" />
+        <el-input-number v-model="colCount" max="100" />
 
-  <div class="flex justify-center">
-    <div class="border p-0.5">
-      <div class="row flex" v-for="(row, i) in minesMap" :key="i">
-        <div class="col" v-for="(col, j) in row" :key="j">
-          <div
-            @click="onClick(col)"
-            @click.right.prevent="setFlag(col)"
-            class="m-0.5 w-8 h-8 cursor-pointer"
-            :class="{
-              'hover:animate-pulse': !col.visible && !col.isFlag,
-              'bg-slate-400': !col.visible && !col.isFlag,
-              'bg-green-200': col.isFlag && !col.visible,
-            }"
-          >
-            <span
-              v-if="col.visible"
-              class="w-8 h-8 flex justify-center items-center"
-              :class="
-                col.isMine
-                  ? 'bg-red-200'
-                  : col.mines === MINE_NULL
-                  ? 'bg-slate-100'
-                  : 'bg-slate-200'
-              "
-            >
-              {{
-                !col.visible || col.isMine || col.mines === 0 ? "" : col.mines
-              }}
-            </span>
+        <el-button type="primary" @click="refresh">
+          {{ gameState === GameState.Start ? "刷新" : "开始游戏" }}
+        </el-button>
+      </el-space>
+    </el-aside>
+    <el-main>
+      <el-empty
+        description="description"
+        :image-size="200"
+        v-if="gameState === GameState.End"
+      >
+      </el-empty>
+      <div v-else class="flex justify-center items-center">
+        <div class="border p-0.5">
+          <div class="row flex" v-for="(row, i) in minesMap" :key="i">
+            <div class="col" v-for="(col, j) in row" :key="j">
+              <div
+                @click="onClick(col)"
+                @click.right.prevent="setFlag(col)"
+                class="m-0.5 w-8 h-8 cursor-pointer"
+                :class="{
+                  'hover:animate-pulse': !col.visible && !col.isFlag,
+                  'bg-slate-400': !col.visible && !col.isFlag,
+                  'bg-green-200': col.isFlag && !col.visible,
+                }"
+              >
+                <span
+                  v-if="col.visible"
+                  class="w-8 h-8 flex justify-center items-center"
+                  :class="
+                    col.isMine
+                      ? 'bg-red-200'
+                      : col.mines === MINE_NULL
+                      ? 'bg-slate-100'
+                      : 'bg-slate-200'
+                  "
+                >
+                  {{
+                    !col.visible || col.isMine || col.mines === 0
+                      ? ""
+                      : col.mines
+                  }}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </el-main>
+  </el-container>
 </template>
 
 <script setup lang="ts">
@@ -136,7 +151,7 @@ let mines: Ref<Set<number>> = ref(new Set([]));
 /** 地图 */
 let minesMap: MineOp[][] = reactive([]);
 /** 游戏状态 */
-let gameState: GameState;
+let gameState: Ref<GameState> = ref(GameState.End);
 /** 插旗数量 */
 let flags = computed(() => {
   let count = minesMap.flat().filter((item) => item.isFlag).length;
@@ -144,17 +159,17 @@ let flags = computed(() => {
 });
 
 let refresh = () => {
-  gameState = GameState.Start;
+  gameState.value = GameState.Start;
   mines.value = getMines(mineCount.value, rowCount.value * colCount.value);
   minesMap.length = 0;
   minesMap.push(...getMinesCube(rowCount.value, colCount.value));
 };
 
 const onClick = (cell: MineOp) => {
-  if (!cell.visible && !cell.isFlag && gameState === GameState.Start) {
+  if (!cell.visible && !cell.isFlag && gameState.value === GameState.Start) {
     cell.visible = true;
     if (cell.isMine) {
-      gameState = GameState.End;
+      gameState.value = GameState.End;
       setTimeout(() => {
         let res = confirm("End! Restart?");
         if (res) {
@@ -185,8 +200,8 @@ const onClick = (cell: MineOp) => {
         t--;
       }
     });
-    if (t === 0 && gameState === GameState.Start) {
-      gameState = GameState.End;
+    if (t === 0 && gameState.value === GameState.Start) {
+      gameState.value = GameState.End;
       setTimeout(() => {
         alert("Victory!");
       }, 50);
