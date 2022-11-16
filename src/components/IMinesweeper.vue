@@ -1,5 +1,5 @@
 <template>
-  <div>{{ msg }}</div>
+  <div>{{ flags }}</div>
   <input
     v-model="mineCount"
     type="number"
@@ -22,8 +22,8 @@
             @click.right.prevent="setFlag(col)"
             class="m-0.5 w-8 h-8 cursor-pointer"
             :class="{
-              'hover:animate-pulse': !col.visible,
-              'bg-slate-400': !col.visible,
+              'hover:animate-pulse': !col.visible && !col.isFlag,
+              'bg-slate-400': !col.visible && !col.isFlag,
               'bg-green-200': col.isFlag && !col.visible,
             }"
           >
@@ -52,11 +52,7 @@
 <script setup lang="ts">
 import { GameState } from "@/types/minesweeper.enum";
 import type { MineOp } from "@/types/minesweeper.interface";
-import { reactive, ref, type Ref } from "vue";
-
-defineProps({
-  msg: String,
-});
+import { computed, reactive, ref, type Ref } from "vue";
 
 const MINE_NULL = 0;
 
@@ -141,6 +137,11 @@ let mines: Ref<Set<number>> = ref(new Set([]));
 let minesMap: MineOp[][] = reactive([]);
 /** 游戏状态 */
 let gameState: GameState;
+/** 插旗数量 */
+let flags = computed(() => {
+  let count = minesMap.flat().filter((item) => item.isFlag).length;
+  return count;
+});
 
 let refresh = () => {
   gameState = GameState.Start;
