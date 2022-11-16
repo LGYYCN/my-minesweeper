@@ -11,12 +11,9 @@ declare module '@vue/runtime-core' {
     ElButton: typeof import('element-plus/es')['ElButton']
     ElContainer: typeof import('element-plus/es')['ElContainer']
     ElEmpty: typeof import('element-plus/es')['ElEmpty']
-    ElInput: typeof import('element-plus/es')['ElInput']
     ElInputNumber: typeof import('element-plus/es')['ElInputNumber']
     ElMain: typeof import('element-plus/es')['ElMain']
     ElSpace: typeof import('element-plus/es')['ElSpace']
-    IMinesweeper: typeof import('./src/components/IMinesweeper.vue')['default']
-    MinesweeperAside: typeof import('./src/components/MinesweeperAside.vue')['default']
     MinesweeperWindow: typeof import('./src/components/MinesweeperWindow.vue')['default']
   }
 }
